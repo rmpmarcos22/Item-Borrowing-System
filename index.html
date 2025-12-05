@@ -945,12 +945,22 @@
         }
 
         .qr-card canvas {
-            max-width: 100%;
-            height: auto;
+            display: block !important;
+            width: 160px !important;
+            height: 160px !important;
+            margin: 20px auto !important;
+            background: #ffffff !important;
+            padding: 25px !important;
             border-radius: var(--radius-md);
-            margin: 15px 0;
-            background: white;
-            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 2px solid #e5e7eb;
+        }
+
+        .qr-card > div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 240px;
         }
 
         .qr-card h4 {
@@ -2210,8 +2220,8 @@
                     if (container && !container.querySelector('canvas')) {
                         new QRCode(container, {
                             text: qr.format,
-                            width: 200,
-                            height: 200,
+                            width: 160,
+                            height: 160,
                             colorDark: "#000000",
                             colorLight: "#ffffff",
                             correctLevel: QRCode.CorrectLevel.H
