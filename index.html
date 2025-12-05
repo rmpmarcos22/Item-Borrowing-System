@@ -1453,19 +1453,47 @@
         const database = firebase.database();
         const borrowingsRef = database.ref('borrowings');
 
-        // Firebase Connection Status
-        const connectedRef = database.ref('.info/connected');
-        connectedRef.on('value', (snap) => {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
+        // Firebase Connection Status - Wait for DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            const connectedRef = database.ref('.info/connected');
             
-            if (snap.val() === true) {
-                statusDot.classList.add('connected');
-                statusText.textContent = currentLang === 'ms' ? 'Tersambung' : 'Connected';
-            } else {
-                statusDot.classList.remove('connected');
-                statusText.textContent = currentLang === 'ms' ? 'Tidak Tersambung' : 'Disconnected';
-            }
+            // Set timeout for connection
+            let connectionTimeout = setTimeout(() => {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                if (statusDot && statusText && !statusDot.classList.contains('connected')) {
+                    statusText.textContent = 'Connection timeout. Refresh page.';
+                    console.error('Firebase connection timeout');
+                }
+            }, 10000); // 10 seconds timeout
+            
+            connectedRef.on('value', (snap) => {
+                clearTimeout(connectionTimeout); // Clear timeout on connection
+                
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (statusDot && statusText) {
+                    if (snap.val() === true) {
+                        statusDot.classList.add('connected');
+                        statusText.textContent = 'Connected';
+                        console.log('✅ Firebase connected');
+                    } else {
+                        statusDot.classList.remove('connected');
+                        statusText.textContent = 'Disconnected';
+                        console.warn('⚠️ Firebase disconnected');
+                    }
+                }
+            });
+            
+            // Error handler
+            database.ref('.info/connected').catch((error) => {
+                console.error('Firebase connection error:', error);
+                const statusText = document.getElementById('statusText');
+                if (statusText) {
+                    statusText.textContent = 'Connection error: ' + error.message;
+                }
+            });
         });
 
         // ============================================
