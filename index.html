@@ -945,26 +945,12 @@
         }
 
         .qr-card canvas {
-            display: block !important;
-            width: 120px !important;
-            height: 120px !important;
-            margin: 20px auto !important;
-            background: #ffffff !important;
-            padding: 30px !important;
+            max-width: 100%;
+            height: auto;
             border-radius: var(--radius-md);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border: 2px solid #e5e7eb;
-        }
-
-        .qr-card img {
-            display: none !important;
-        }
-
-        .qr-card > div {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 220px;
+            margin: 15px 0;
+            background: white;
+            padding: 10px;
         }
 
         .qr-card h4 {
@@ -2224,19 +2210,9 @@
                     if (container && !container.querySelector('canvas')) {
                         new QRCode(container, {
                             text: qr.format,
-                            width: 120,
-                            height: 120,
+                            width: 200,
+                            height: 200,
                             colorDark: "#000000",
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                        
-                        // Remove duplicate image element, keep only canvas
-                        const img = container.querySelector('img');
-                        if (img) {
-                            img.remove();
-                        }
-                    }
                             colorLight: "#ffffff",
                             correctLevel: QRCode.CorrectLevel.H
                         });
