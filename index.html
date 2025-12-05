@@ -303,65 +303,216 @@
         }
 
         .qr-scanner-container {
-            margin-bottom: 25px;
-            text-align: center;
+            margin-bottom: 30px;
             position: relative;
             z-index: 1;
         }
 
-        #reader, #readerReturn {
-            max-width: 100%;
-            margin: 20px auto;
-            border: 2px solid var(--glass-border);
+        .scan-btn {
+            padding: 16px 48px;
+            background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%);
+            color: #000000;
+            border: none;
             border-radius: 16px;
-            background: var(--bg-card);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 8px 24px rgba(184, 134, 11, 0.25);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .scan-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .scan-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .scan-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(184, 134, 11, 0.4);
+        }
+
+        .scan-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .scan-btn.scanning {
+            background: linear-gradient(135deg, #DC3545 0%, #C82333 100%);
+            color: #FFFFFF;
+            box-shadow: 0 8px 24px rgba(220, 53, 69, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .scan-icon {
+            font-size: 1.5rem;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .scanning .scan-icon {
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #reader, #readerReturn {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto 0;
+            border: 3px solid var(--primary);
+            border-radius: 20px;
+            background: #000000;
             display: none;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 12px 48px rgba(184, 134, 11, 0.3);
         }
 
         #reader.active, #readerReturn.active {
             display: block;
-            animation: scannerAppear 0.4s ease-out;
+            animation: scannerSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes scannerAppear {
+        @keyframes scannerSlideIn {
             from {
                 opacity: 0;
-                transform: scale(0.95);
+                transform: translateY(-20px) scale(0.95);
             }
             to {
                 opacity: 1;
-                transform: scale(1);
+                transform: translateY(0) scale(1);
             }
         }
 
-        .scan-btn {
-            padding: 14px 40px;
-            background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%);
-            color: #000000;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            position: relative;
-            box-shadow: 0 8px 25px rgba(184, 134, 11, 0.3);
+        /* QR Scanner Video Styling */
+        #reader video,
+        #readerReturn video {
             width: 100%;
-            max-width: 300px;
+            height: auto;
+            border-radius: 16px;
         }
 
-        .scan-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(184, 134, 11, 0.5);
+        /* QR Scanner Overlay */
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 2;
         }
 
-        .scan-btn.stop {
-            background: linear-gradient(135deg, #DC3545 0%, #C82333 100%);
-            color: #FFFFFF;
-            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+        .scanner-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+
+        .scanner-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--accent);
+        }
+
+        .scanner-corner.top-left {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 12px 0 0 0;
+        }
+
+        .scanner-corner.top-right {
+            top: -3px;
+            right: -3px;
+            border-left: none;
+            border-bottom: none;
+            border-radius: 0 12px 0 0;
+        }
+
+        .scanner-corner.bottom-left {
+            bottom: -3px;
+            left: -3px;
+            border-right: none;
+            border-top: none;
+            border-radius: 0 0 0 12px;
+        }
+
+        .scanner-corner.bottom-right {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+            border-radius: 0 0 12px 0;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scanAnimation 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        @keyframes scanAnimation {
+            0%, 100% { top: 0; }
+            50% { top: calc(100% - 3px); }
+        }
+
+        .scanner-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 3;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .form-group {
@@ -818,10 +969,22 @@
                 <h2 id="borrowFormTitle">Borang Pinjam Barang</h2>
                 
                 <div class="qr-scanner-container">
-                    <button class="scan-btn" id="startScanBorrow">
+                    <button class="scan-btn" id="startScanBorrow" type="button">
+                        <span class="scan-icon">📷</span>
                         <span id="scanBorrowText">Scan QR Code</span>
                     </button>
-                    <div id="reader"></div>
+                    <div id="reader">
+                        <div class="scanner-overlay">
+                            <div class="scanner-frame">
+                                <div class="scanner-corner top-left"></div>
+                                <div class="scanner-corner top-right"></div>
+                                <div class="scanner-corner bottom-left"></div>
+                                <div class="scanner-corner bottom-right"></div>
+                                <div class="scan-line"></div>
+                            </div>
+                            <div class="scanner-hint" id="scanHintBorrow">Align QR code within frame</div>
+                        </div>
+                    </div>
                 </div>
 
                 <form id="borrowForm">
@@ -882,10 +1045,22 @@
                 <h2 id="returnFormTitle">Borang Pulang Barang</h2>
                 
                 <div class="qr-scanner-container">
-                    <button class="scan-btn" id="startScanReturn">
+                    <button class="scan-btn" id="startScanReturn" type="button">
+                        <span class="scan-icon">📷</span>
                         <span id="scanReturnText">Scan QR Code</span>
                     </button>
-                    <div id="readerReturn"></div>
+                    <div id="readerReturn">
+                        <div class="scanner-overlay">
+                            <div class="scanner-frame">
+                                <div class="scanner-corner top-left"></div>
+                                <div class="scanner-corner top-right"></div>
+                                <div class="scanner-corner bottom-left"></div>
+                                <div class="scanner-corner bottom-right"></div>
+                                <div class="scan-line"></div>
+                            </div>
+                            <div class="scanner-hint" id="scanHintReturn">Align QR code within frame</div>
+                        </div>
+                    </div>
                 </div>
 
                 <form id="returnForm">
@@ -1128,7 +1303,10 @@
                 alertReturnSuccess: 'Pulangan berjaya direkodkan!',
                 alertAccessSuccess: 'Akses berjaya!',
                 alertQuickReturnSuccess: 'Barang berjaya ditandakan sebagai dipulangkan!',
-                scanStopText: 'Berhenti Scan'
+                scanStopText: 'Berhenti Scan',
+                alertQRSuccess: 'Kod QR berjaya diimbas',
+                alertQRInvalid: 'Format QR tidak sah! Guna: KOD|NAMA',
+                alertNoActiveRecord: 'Tiada rekod pinjaman aktif untuk item ini',
             },
             en: {
                 mainTitle: 'Item Borrowing System',
@@ -1198,7 +1376,12 @@
                 alertReturnSuccess: 'Return recorded successfully!',
                 alertAccessSuccess: 'Access granted!',
                 alertQuickReturnSuccess: 'Item marked as returned successfully!',
-                scanStopText: 'Stop Scan'
+                scanBorrowText: 'Scan QR Code',
+                scanReturnText: 'Scan QR Code',
+                scanStopText: 'Stop Scan',
+                alertQRSuccess: 'QR code scanned successfully',
+                alertQRInvalid: 'Invalid QR format! Use: CODE|NAME',
+                alertNoActiveRecord: 'No active borrowing record for this item',
             }
         };
 
@@ -1532,14 +1715,141 @@
         }
 
         // ============================================
-        // QR SCANNER (Simplified)
+        // QR SCANNER
         // ============================================
+        let isScanning = { borrow: false, return: false };
+
         document.getElementById('startScanBorrow').addEventListener('click', () => toggleScanner('borrow'));
         document.getElementById('startScanReturn').addEventListener('click', () => toggleScanner('return'));
 
         function toggleScanner(type) {
+            const button = document.getElementById(type === 'borrow' ? 'startScanBorrow' : 'startScanReturn');
             const reader = document.getElementById(type === 'borrow' ? 'reader' : 'readerReturn');
-            reader.classList.toggle('active');
+            const textSpan = document.getElementById(type === 'borrow' ? 'scanBorrowText' : 'scanReturnText');
+            const hint = document.getElementById(type === 'borrow' ? 'scanHintBorrow' : 'scanHintReturn');
+            
+            if (isScanning[type]) {
+                // Stop scanning
+                stopScanner(type);
+                button.classList.remove('scanning');
+                textSpan.textContent = type === 'borrow' ? translations[currentLang].scanBorrowText : translations[currentLang].scanReturnText;
+                reader.classList.remove('active');
+                isScanning[type] = false;
+            } else {
+                // Start scanning
+                startQRScanner(type);
+                button.classList.add('scanning');
+                textSpan.textContent = translations[currentLang].scanStopText || 'Stop Scan';
+                reader.classList.add('active');
+                isScanning[type] = true;
+                
+                // Update hint based on language
+                if (currentLang === 'en') {
+                    hint.textContent = 'Align QR code within frame';
+                } else {
+                    hint.textContent = 'Sejajarkan kod QR dalam bingkai';
+                }
+            }
+        }
+
+        function startQRScanner(type) {
+            const readerId = type === 'borrow' ? 'reader' : 'readerReturn';
+            
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
+
+            const onScanSuccess = (decodedText) => {
+                // Vibrate on successful scan (if supported)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+                
+                // Parse QR code format: CODE|NAME
+                if (decodedText.includes('|')) {
+                    const parts = decodedText.split('|');
+                    const itemCode = parts[0].trim();
+                    const itemName = parts[1].trim();
+                    
+                    if (type === 'borrow') {
+                        document.getElementById('borrowItemCode').value = itemCode;
+                        document.getElementById('borrowItemName').value = itemName;
+                        showAlert(`✅ Scanned: ${itemName}`, 'success');
+                        
+                        // Focus on next field after delay
+                        setTimeout(() => {
+                            document.getElementById('borrowerName').focus();
+                        }, 500);
+                    } else if (type === 'return') {
+                        document.getElementById('returnItemCode').value = itemCode;
+                        document.getElementById('returnItemName').value = itemName;
+                        loadBorrowingInfo(itemCode);
+                        showAlert(`✅ Scanned: ${itemName}`, 'success');
+                        
+                        // Focus on condition field
+                        setTimeout(() => {
+                            document.getElementById('itemCondition').focus();
+                        }, 500);
+                    }
+                    
+                    // Auto-stop scanner after successful scan
+                    setTimeout(() => {
+                        toggleScanner(type);
+                    }, 1000);
+                } else {
+                    showAlert('❌ Invalid QR format! Use: CODE|NAME', 'error');
+                }
+            };
+
+            const qrCodeInstance = type === 'borrow' ? 
+                (html5QrCodeBorrow || (html5QrCodeBorrow = new Html5Qrcode(readerId))) : 
+                (html5QrCodeReturn || (html5QrCodeReturn = new Html5Qrcode(readerId)));
+
+            qrCodeInstance.start(
+                { facingMode: "environment" }, // Use back camera
+                config,
+                onScanSuccess
+            ).catch(err => {
+                console.error('Camera error:', err);
+                
+                // User-friendly error messages
+                let errorMsg = 'Cannot access camera.';
+                if (err.toString().includes('NotAllowedError')) {
+                    errorMsg = 'Camera permission denied. Please allow camera access in browser settings.';
+                } else if (err.toString().includes('NotFoundError')) {
+                    errorMsg = 'No camera found on this device.';
+                } else if (err.toString().includes('NotReadableError')) {
+                    errorMsg = 'Camera is being used by another application.';
+                } else if (err.toString().includes('OverconstrainedError')) {
+                    errorMsg = 'Camera does not support requested settings.';
+                }
+                
+                showAlert('📷 ' + errorMsg + ' Please use manual entry.', 'error');
+                
+                // Reset button state
+                const button = document.getElementById(type === 'borrow' ? 'startScanBorrow' : 'startScanReturn');
+                const textSpan = document.getElementById(type === 'borrow' ? 'scanBorrowText' : 'scanReturnText');
+                const reader = document.getElementById(type === 'borrow' ? 'reader' : 'readerReturn');
+                
+                button.classList.remove('scanning');
+                textSpan.textContent = type === 'borrow' ? translations[currentLang].scanBorrowText : translations[currentLang].scanReturnText;
+                reader.classList.remove('active');
+                isScanning[type] = false;
+            });
+        }
+
+        function stopScanner(type) {
+            const qrCodeInstance = type === 'borrow' ? html5QrCodeBorrow : html5QrCodeReturn;
+            
+            if (qrCodeInstance && qrCodeInstance.isScanning) {
+                qrCodeInstance.stop().then(() => {
+                    console.log('Scanner stopped successfully');
+                }).catch(err => {
+                    console.error('Error stopping scanner:', err);
+                });
+            }
         }
 
         function loadBorrowingInfo(itemCode) {
@@ -1550,6 +1860,14 @@
                 document.getElementById('returnerName').value = activeBorrowing.borrowerName;
                 document.getElementById('returnerID').value = activeBorrowing.borrowerID;
                 document.getElementById('borrowInfoAlert').style.display = 'block';
+                document.getElementById('borrowInfo').innerHTML = `
+                    <p><strong>Peminjam:</strong> ${activeBorrowing.borrowerName}</p>
+                    <p><strong>Tarikh Pinjam:</strong> ${activeBorrowing.borrowDate} ${activeBorrowing.borrowTime}</p>
+                    <p><strong>Tujuan:</strong> ${activeBorrowing.purpose || '-'}</p>
+                `;
+            } else {
+                showAlert('⚠️ No active borrowing record found for this item.', 'error');
+                document.getElementById('borrowInfoAlert').style.display = 'none';
             }
         }
 
