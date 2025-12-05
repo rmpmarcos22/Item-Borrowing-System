@@ -6,7 +6,6 @@
     <title>Sistem Pinjam Pulang Barang</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -898,100 +897,6 @@
             flex-wrap: wrap;
         }
 
-        /* Sub-tabs styling */
-        .sub-tab-active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
-            color: #ffffff !important;
-            border-color: transparent !important;
-            box-shadow: var(--shadow-md) !important;
-        }
-
-        .records-sub-section {
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* QR Card styling */
-        .qr-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .qr-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-
-        .qr-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        .qr-card canvas {
-            display: block !important;
-            width: 120px !important;
-            height: 120px !important;
-            margin: 20px auto !important;
-            background: #ffffff !important;
-            padding: 30px !important;
-            border-radius: var(--radius-md);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border: 2px solid #e5e7eb;
-        }
-
-        .qr-card img {
-            display: none !important;
-        }
-
-        .qr-card > div {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 220px;
-        }
-
-        .qr-card h4 {
-            color: var(--secondary);
-            margin: 10px 0 5px;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .qr-card p {
-            color: var(--text-secondary);
-            margin: 5px 0;
-            font-size: 0.9rem;
-        }
-
-        .qr-card .qr-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            justify-content: center;
-        }
-
-        .qr-card .qr-actions button {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-        }
-
         .alert {
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -1453,47 +1358,19 @@
         const database = firebase.database();
         const borrowingsRef = database.ref('borrowings');
 
-        // Firebase Connection Status - Wait for DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            const connectedRef = database.ref('.info/connected');
+        // Firebase Connection Status
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
             
-            // Set timeout for connection
-            let connectionTimeout = setTimeout(() => {
-                const statusDot = document.getElementById('statusDot');
-                const statusText = document.getElementById('statusText');
-                if (statusDot && statusText && !statusDot.classList.contains('connected')) {
-                    statusText.textContent = 'Connection timeout. Refresh page.';
-                    console.error('Firebase connection timeout');
-                }
-            }, 10000); // 10 seconds timeout
-            
-            connectedRef.on('value', (snap) => {
-                clearTimeout(connectionTimeout); // Clear timeout on connection
-                
-                const statusDot = document.getElementById('statusDot');
-                const statusText = document.getElementById('statusText');
-                
-                if (statusDot && statusText) {
-                    if (snap.val() === true) {
-                        statusDot.classList.add('connected');
-                        statusText.textContent = 'Connected';
-                        console.log('✅ Firebase connected');
-                    } else {
-                        statusDot.classList.remove('connected');
-                        statusText.textContent = 'Disconnected';
-                        console.warn('⚠️ Firebase disconnected');
-                    }
-                }
-            });
-            
-            // Error handler
-            database.ref('.info/connected').catch((error) => {
-                console.error('Firebase connection error:', error);
-                const statusText = document.getElementById('statusText');
-                if (statusText) {
-                    statusText.textContent = 'Connection error: ' + error.message;
-                }
-            });
+            if (snap.val() === true) {
+                statusDot.classList.add('connected');
+                statusText.textContent = currentLang === 'ms' ? 'Tersambung' : 'Connected';
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = currentLang === 'ms' ? 'Tidak Tersambung' : 'Disconnected';
+            }
         });
 
         // ============================================
@@ -1689,47 +1566,12 @@
             });
         }
 
-        // ============================================
-        // WEBHOOK INTEGRATION
-        // ============================================
-        const WEBHOOK_URL = 'https://hook.eu1.make.com/ce7zl5p29yn2y1vnaemukh6rypujj6ex';
-
-        function sendToWebhook(data, action) {
-            const payload = {
-                action: action, // 'borrow' or 'return'
-                timestamp: new Date().toISOString(),
-                data: data
-            };
-
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('✅ Webhook sent successfully:', action);
-                } else {
-                    console.warn('⚠️ Webhook response not OK:', response.status);
-                }
-            })
-            .catch(error => {
-                console.error('❌ Webhook error:', error);
-                // Don't show error to user - webhook is background process
-            });
-        }
-
         function saveBorrowingToFirebase(borrowing) {
             const newBorrowingRef = borrowingsRef.push();
             borrowing.id = newBorrowingRef.key;
             newBorrowingRef.set(borrowing)
                 .then(() => {
                     showAlert(translations[currentLang].alertBorrowSuccess, 'success');
-                    
-                    // Send to webhook after successful save
-                    sendToWebhook(borrowing, 'borrow');
                 })
                 .catch((error) => {
                     showAlert('Error: ' + error.message, 'error');
@@ -1740,10 +1582,6 @@
             borrowingsRef.child(borrowingId).update(updates)
                 .then(() => {
                     showAlert(translations[currentLang].alertReturnSuccess, 'success');
-                    
-                    // Get full record and send to webhook
-                    const fullRecord = { ...borrowings[borrowingId], ...updates };
-                    sendToWebhook(fullRecord, 'return');
                 })
                 .catch((error) => {
                     showAlert('Error: ' + error.message, 'error');
@@ -2131,219 +1969,6 @@
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 300);
             }, 4000);
-        }
-
-        // ============================================
-        // SUB-TAB NAVIGATION
-        // ============================================
-        function showRecordsSubTab(tab) {
-            // Update button states
-            document.getElementById('btnSubTabList').classList.remove('sub-tab-active');
-            document.getElementById('btnSubTabQR').classList.remove('sub-tab-active');
-            
-            if (tab === 'list') {
-                document.getElementById('btnSubTabList').classList.add('sub-tab-active');
-                document.getElementById('recordsListSection').style.display = 'block';
-                document.getElementById('qrGeneratorSection').style.display = 'none';
-            } else if (tab === 'qr') {
-                document.getElementById('btnSubTabQR').classList.add('sub-tab-active');
-                document.getElementById('recordsListSection').style.display = 'none';
-                document.getElementById('qrGeneratorSection').style.display = 'block';
-                loadQRCodes();
-            }
-        }
-
-        // ============================================
-        // QR GENERATOR FUNCTIONS
-        // ============================================
-        let qrCodes = JSON.parse(localStorage.getItem('qrCodes') || '[]');
-
-        // Update preview as user types
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeInput = document.getElementById('qrItemCode');
-            const nameInput = document.getElementById('qrItemName');
-            const preview = document.getElementById('qrPreview');
-            
-            function updatePreview() {
-                const code = codeInput?.value.trim() || '';
-                const name = nameInput?.value.trim() || '';
-                if (code && name) {
-                    preview.textContent = `${code}|${name}`;
-                } else {
-                    preview.textContent = '-';
-                }
-            }
-            
-            codeInput?.addEventListener('input', updatePreview);
-            nameInput?.addEventListener('input', updatePreview);
-        });
-
-        function generateQR(event) {
-            event.preventDefault();
-            
-            const code = document.getElementById('qrItemCode').value.trim();
-            const name = document.getElementById('qrItemName').value.trim();
-            const description = document.getElementById('qrDescription').value.trim();
-            
-            // Check for duplicates
-            if (qrCodes.find(qr => qr.code === code)) {
-                showAlert('⚠️ Kod barang sudah wujud!', 'error');
-                return;
-            }
-            
-            // Create QR data
-            const qrData = {
-                id: Date.now(),
-                code: code,
-                name: name,
-                description: description,
-                format: `${code}|${name}`,
-                timestamp: new Date().toISOString()
-            };
-            
-            qrCodes.push(qrData);
-            localStorage.setItem('qrCodes', JSON.stringify(qrCodes));
-            
-            showAlert('✅ QR Code berjaya dijana!', 'success');
-            clearQRForm();
-            loadQRCodes();
-        }
-
-        function clearQRForm() {
-            document.getElementById('qrForm').reset();
-            document.getElementById('qrPreview').textContent = '-';
-        }
-
-        function loadQRCodes() {
-            const grid = document.getElementById('qrGrid');
-            qrCodes = JSON.parse(localStorage.getItem('qrCodes') || '[]');
-            
-            if (qrCodes.length === 0) {
-                grid.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted); grid-column: 1 / -1;">Tiada QR code. Jana QR code di atas.</div>';
-                document.getElementById('btnPrintAll').style.display = 'none';
-                document.getElementById('btnDeleteAll').style.display = 'none';
-                return;
-            }
-            
-            document.getElementById('btnPrintAll').style.display = 'inline-block';
-            document.getElementById('btnDeleteAll').style.display = 'inline-block';
-            
-            grid.innerHTML = qrCodes.map(qr => `
-                <div class="qr-card">
-                    <div id="qr-${qr.id}"></div>
-                    <h4>${qr.name}</h4>
-                    <p style="color: var(--primary); font-family: monospace; font-weight: 600;">${qr.code}</p>
-                    ${qr.description ? `<p style="font-size: 0.85rem;">${qr.description}</p>` : ''}
-                    <div class="qr-actions">
-                        <button class="btn btn-primary" onclick="downloadQR('${qr.id}', '${qr.code}')">
-                            💾 Download
-                        </button>
-                        <button class="btn btn-secondary" onclick="deleteQR(${qr.id})">
-                            🗑️ Delete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Generate QR codes after DOM update
-            setTimeout(() => {
-                qrCodes.forEach(qr => {
-                    const container = document.getElementById(`qr-${qr.id}`);
-                    if (container && !container.querySelector('canvas')) {
-                        new QRCode(container, {
-                            text: qr.format,
-                            width: 120,
-                            height: 120,
-                            colorDark: "#000000",
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                        
-                        // Remove duplicate image element, keep only canvas
-                        const img = container.querySelector('img');
-                        if (img) {
-                            img.remove();
-                        }
-                    }
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                    }
-                });
-            }, 100);
-        }
-
-        function downloadQR(id, code) {
-            const container = document.getElementById(`qr-${id}`);
-            const canvas = container.querySelector('canvas');
-            
-            if (canvas) {
-                const link = document.createElement('a');
-                link.download = `QR_${code}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-                showAlert('✅ QR Code dimuat turun!', 'success');
-            }
-        }
-
-        function deleteQR(id) {
-            if (confirm('Delete QR code ini?')) {
-                qrCodes = qrCodes.filter(qr => qr.id !== id);
-                localStorage.setItem('qrCodes', JSON.stringify(qrCodes));
-                showAlert('✅ QR Code dipadam', 'success');
-                loadQRCodes();
-            }
-        }
-
-        function deleteAllQR() {
-            if (confirm('Delete SEMUA QR codes?')) {
-                qrCodes = [];
-                localStorage.setItem('qrCodes', JSON.stringify(qrCodes));
-                showAlert('✅ Semua QR Code dipadam', 'success');
-                loadQRCodes();
-            }
-        }
-
-        function printAllQR() {
-            const printWindow = window.open('', '', 'width=800,height=600');
-            const qrCards = qrCodes.map(qr => {
-                const container = document.getElementById(`qr-${qr.id}`);
-                const canvas = container?.querySelector('canvas');
-                const dataUrl = canvas?.toDataURL() || '';
-                
-                return `
-                    <div style="page-break-inside: avoid; margin-bottom: 30px; text-align: center;">
-                        <img src="${dataUrl}" style="width: 200px; height: 200px;">
-                        <h3 style="margin: 10px 0;">${qr.name}</h3>
-                        <p style="font-weight: bold;">${qr.code}</p>
-                        ${qr.description ? `<p style="font-size: 14px; color: #666;">${qr.description}</p>` : ''}
-                    </div>
-                `;
-            }).join('');
-            
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Print QR Codes</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        @media print {
-                            body { margin: 0; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1 style="text-align: center;">QR Codes - Pengurusan Inventori</h1>
-                    <hr>
-                    ${qrCards}
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
         }
     </script>
 </body>
